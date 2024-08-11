@@ -97,6 +97,7 @@ while t < Tmax and I > 0:
             # only infected by virus 1 transition
             I += 1
     else:
+        # Recovery event for virus 1
         if I > 0:
             S += 1
             I -= 1
