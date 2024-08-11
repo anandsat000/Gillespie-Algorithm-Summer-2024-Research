@@ -81,7 +81,7 @@ while t < Tmax and I > 0:
         if I > 0:
             I -= 1
             I12 += 1
-    elif np.random.rand() < (infection_rate1 + infection_rate2 + coupled_infection_rate1) / total_rate:
+    elif np.random.rand() < (infection_rate1 + infection_rate2 + coupled_infection_rate1 + coupled_infection_rate2) / total_rate:
         # Infection event for both viruses (I2 to I12)
         if I2 > 0:
             I2 -= 1
