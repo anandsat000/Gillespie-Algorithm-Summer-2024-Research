@@ -150,7 +150,7 @@ while t < Tmax and ('I1' in states.values() or 'I2' in states.values()):
     if 'infected_node2' in locals():
         for neighbor in G.neighbors(infected_node2):
             if states[neighbor] == 'S':
-                infection_rates1[neighbor] = beta1 * sum(1 for n in G.neighbors(neighbor) if states[n] == 'I1')
+                infection_rates1[neighbor] = beta2 * sum(1 for n in G.neighbors(neighbor) if states[n] == 'I2')
     
     # Record the number of infected nodes and current time for both Viruses
     num_infected1.append(sum(1 for state in states.values() if state == 'I1'))
