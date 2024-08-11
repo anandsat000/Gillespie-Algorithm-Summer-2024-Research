@@ -54,7 +54,7 @@ while t < Tmax and I > 0:
     coupled_infection_rate1 = beta1 * (I * I2 / N)
     # I2 to I12
     coupled_infection_rate2 = beta2 * (I * I2 / N)  
-    total_rate = infection_rate1 + recovery_rate1 + infection_rate2 + recovery_rate2
+    total_rate = infection_rate1 + recovery_rate1 + infection_rate2 + recovery_rate2 + coupled_infection_rate1 + coupled_infection_rate2
     # Generate the time to the next event
     if total_rate == 0:
         break
