@@ -41,13 +41,11 @@ def calculate_rates(G, states, beta1, beta2, gamma1, gamma2):
         if states[node] == 'S':
             # Infection rate: beta * number of infected neighbors
             #Virus 1
-            infected_neighbors1 = sum(1 for neighbor in G.neighbors(
-                node) if states[neighbor] in ['I1', 'I2'])
+            infected_neighbors1 = sum(1 for neighbor in G.neighbors(node) if states[neighbor] in ['I1', 'I2'])
             infection_rates1[node] = beta1 * infected_neighbors1
             
             #Virus 2
-            infected_neighbors2 = sum(1 for neighbor in G.neighbors(
-                node) if states[neighbor] in ['I2', 'I12'])
+            infected_neighbors2 = sum(1 for neighbor in G.neighbors(node) if states[neighbor] in ['I2', 'I12'])
             infection_rates2[node] = beta2 * infected_neighbors2
             
         
@@ -79,7 +77,7 @@ while t < Tmax and ('I1' in states.values() or 'I2' in states.values() or 'I12' 
     total_infection_rate2 = sum(infection_rates2.values())
     total_recovery_rate1 = sum(recovery_rates1.values())
     total_recovery_rate2 = sum(recovery_rates2.values())
-    total_rate = total_infection_rate1 + total_recovery_rate1 + total_infection_rate2 + total_recovery_rate2;
+    total_rate = total_infection_rate1 + total_recovery_rate1 + total_infection_rate2 + total_recovery_rate2
     
     # Check if total rates are greater than zero
     if total_infection_rate1 > 0:
@@ -117,58 +115,65 @@ while t < Tmax and ('I1' in states.values() or 'I2' in states.values() or 'I12' 
     # Determine which event occurs
     # np.randoom.rand generates a number between 0-1
     if np.random.rand() < total_infection_rate1 / total_rate:
-        #Infection event for Virus 1
-        # A susceptible node is chosen to become infected from the keys of the infection rates dictionary
-        # with probabilities proportional to their infection rates
-        if infected_node1 is not None: # If it is greater than 0, then infection is possible
+        # Infection event for Virus 1
+        if infected_node1 is not None:
             # The state is updated to infected
             if states[infected_node1] == 'S':
                 states[infected_node1] = 'I1'
             elif states[infected_node1] == 'I2':
                 states[infected_node1] = 'I12'
-        # The node is removed from the infection_rates dictionary since it's no longer susceptible
-        del infection_rates1[infected_node1]
-        # The node is added to recovery_rates dictionary with a recovery rate of gamma
-        recovery_rates1[infected_node1] = gamma1
-        
+
+            # The node is removed from the infection_rates dictionary since it's no longer susceptible
+            if infected_node1 in infection_rates1:
+                del infection_rates1[infected_node1]
+            # The node is added to recovery_rates dictionary with a recovery rate of gamma
+            recovery_rates1[infected_node1] = gamma1
+
     elif np.random.rand() < (total_infection_rate1 + total_infection_rate2) / total_rate:
         # Infection event for Virus 2
         if infected_node2 is not None:
             # The state is updated to infected
-            if states[infected_node1] == 'S':
-                states[infected_node1] = 'I2'
-            elif states[infected_node1] == 'I1':
-                states[infected_node1] = 'I12'
-        # The node is removed from the infection_rates dictionary since it's no longer susceptible
-        del infection_rates2[infected_node2]
-        # The node is added to recovery_rates dictionary with a recovery rate of gamma
-        recovery_rates2[infected_node2] = gamma2
-          
+            if states[infected_node2] == 'S':
+                states[infected_node2] = 'I2'
+            elif states[infected_node2] == 'I1':
+                states[infected_node2] = 'I12'
+
+            # The node is removed from the infection_rates dictionary since it's no longer susceptible
+            if infected_node2 in infection_rates2:
+                del infection_rates2[infected_node2]
+            # The node is added to recovery_rates dictionary with a recovery rate of gamma
+            recovery_rates2[infected_node2] = gamma2
+
     elif np.random.rand() < (total_infection_rate1 + total_infection_rate2 + total_recovery_rate1) / total_rate:
-        #Recovery event for Virus 1
+        # Recovery event for Virus 1
         if recovered_node1 is not None:
-            if states[infected_node1] == 'I1':
-                states[infected_node1] = 'S'
-            elif states[infected_node1] == 'I12':
-                states[infected_node1] = 'I2'
-        del recovery_rates1[recovered_node1]
-        # the infection rate is recalculated, it is proportional to the number of its infected neighbors
-        infection_rates1[recovered_node1] = beta1 * \
-            sum(1 for neighbor in G.neighbors(
-                recovered_node1) if states[neighbor] in ['I1', 'I12'])
-        
+            if states[recovered_node1] == 'I1':
+                states[recovered_node1] = 'S'
+            elif states[recovered_node1] == 'I12':
+                states[recovered_node1] = 'I2'
+
+            if recovered_node1 in recovery_rates1:
+                del recovery_rates1[recovered_node1]
+            # the infection rate is recalculated, it is proportional to the number of its infected neighbors
+            infection_rates1[recovered_node1] = beta1 * \
+                sum(1 for neighbor in G.neighbors(
+                    recovered_node1) if states[neighbor] in ['I1', 'I12'])
+
     else:
         # Recovery event for Virus 2
         if recovered_node2 is not None:
-            if states[infected_node1] == 'I2':
-                states[infected_node1] = 'S'
-            elif states[infected_node1] == 'I12':
-                states[infected_node1] = 'I1'
-        del recovery_rates2[recovered_node2]
-        # the infection rate is recalculated, it is proportional to the number of its infected neighbors
-        infection_rates2[recovered_node2] = beta2 * \
-            sum(1 for neighbor in G.neighbors(
-                recovered_node2) if states[neighbor] in ['I2', 'I12'])
+            if states[recovered_node2] == 'I2':
+                states[recovered_node2] = 'S'
+            elif states[recovered_node2] == 'I12':
+                states[recovered_node2] = 'I1'
+
+            if recovered_node2 in recovery_rates2:
+                del recovery_rates2[recovered_node2]
+            # the infection rate is recalculated, it is proportional to the number of its infected neighbors
+            infection_rates2[recovered_node2] = beta2 * \
+                sum(1 for neighbor in G.neighbors(
+                    recovered_node2) if states[neighbor] in ['I2', 'I12'])
+                
 
     # Update rates for neighbors of the affected node for Virus 1
     if infected_node1 is not None:
