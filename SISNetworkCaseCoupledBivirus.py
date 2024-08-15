@@ -80,7 +80,34 @@ while t < Tmax and ('I1' in states.values() or 'I2' in states.values() or 'I12' 
     total_recovery_rate1 = sum(recovery_rates1.values())
     total_recovery_rate2 = sum(recovery_rates2.values())
     total_rate = total_infection_rate1 + total_recovery_rate1 + total_infection_rate2 + total_recovery_rate2;
+    
+    # Check if total rates are greater than zero
+    if total_infection_rate1 > 0:
+        infected_node1 = np.random.choice(
+            list(infection_rates1.keys()),
+            p=np.array(list(infection_rates1.values())) / total_infection_rate1)
+    else:
+        infected_node1 = None
 
+    if total_infection_rate2 > 0:
+        infected_node2 = np.random.choice(
+            list(infection_rates2.keys()),
+            p=np.array(list(infection_rates2.values())) / total_infection_rate2)
+    else:
+        infected_node2 = None
+
+    if total_recovery_rate1 > 0:
+        recovered_node1 = np.random.choice(list(recovery_rates1.keys()), p=np.array(
+            list(recovery_rates1.values())) / total_recovery_rate1)
+    else:
+        recovered_node1 = None
+
+    if total_recovery_rate2 > 0:
+        recovered_node2 = np.random.choice(list(recovery_rates2.keys()), p=np.array(
+            list(recovery_rates2.values())) / total_recovery_rate2)
+    else:
+        recovered_node2 = None
+        
     # Generate time to next event
     if total_rate == 0:
         break
@@ -93,10 +120,7 @@ while t < Tmax and ('I1' in states.values() or 'I2' in states.values() or 'I12' 
         #Infection event for Virus 1
         # A susceptible node is chosen to become infected from the keys of the infection rates dictionary
         # with probabilities proportional to their infection rates
-        if total_infection_rate1 > 0: # If it is greater than 0, then infection is possible
-            infected_node1 = np.random.choice(
-                list(infection_rates1.keys()),
-                p=np.array(list(infection_rates1.values())) / total_infection_rate1)
+        if infected_node1 is not None: # If it is greater than 0, then infection is possible
             # The state is updated to infected
             if states[infected_node1] == 'S':
                 states[infected_node1] = 'I1'
@@ -109,10 +133,7 @@ while t < Tmax and ('I1' in states.values() or 'I2' in states.values() or 'I12' 
         
     elif np.random.rand() < (total_infection_rate1 + total_infection_rate2) / total_rate:
         # Infection event for Virus 2
-        if total_infection_rate2 > 0:
-            infected_node2 = np.random.choice(
-                list(infection_rates2.keys()),
-                p=np.array(list(infection_rates2.values())) / total_infection_rate2)
+        if infected_node2 is not None:
             # The state is updated to infected
             if states[infected_node1] == 'S':
                 states[infected_node1] = 'I2'
@@ -125,9 +146,7 @@ while t < Tmax and ('I1' in states.values() or 'I2' in states.values() or 'I12' 
           
     elif np.random.rand() < (total_infection_rate1 + total_infection_rate2 + total_recovery_rate1) / total_rate:
         #Recovery event for Virus 1
-        if total_recovery_rate1 > 0:
-            recovered_node1 = np.random.choice(list(recovery_rates1.keys()), p=np.array(
-                list(recovery_rates1.values())) / total_recovery_rate1)
+        if recovered_node1 is not None:
             if states[infected_node1] == 'I1':
                 states[infected_node1] = 'S'
             elif states[infected_node1] == 'I12':
@@ -140,9 +159,7 @@ while t < Tmax and ('I1' in states.values() or 'I2' in states.values() or 'I12' 
         
     else:
         # Recovery event for Virus 2
-        if total_recovery_rate2 > 0:
-            recovered_node2 = np.random.choice(list(recovery_rates2.keys()), p=np.array(
-                list(recovery_rates2.values())) / total_recovery_rate2)
+        if recovered_node2 is not None:
             if states[infected_node1] == 'I2':
                 states[infected_node1] = 'S'
             elif states[infected_node1] == 'I12':
@@ -154,13 +171,13 @@ while t < Tmax and ('I1' in states.values() or 'I2' in states.values() or 'I12' 
                 recovered_node2) if states[neighbor] in ['I2', 'I12'])
 
     # Update rates for neighbors of the affected node for Virus 1
-    if 'infected_node1' in locals():
+    if infected_node1 is not None:
         for neighbor in G.neighbors(infected_node1):
             if states[neighbor] == 'S':
                 infection_rates1[neighbor] = beta1 * sum(1 for n in G.neighbors(neighbor) if states[n] in ['I1', 'I12'])
                 
     # Update rates for neighbors of the affected node for Virus 2
-    if 'infected_node2' in locals():
+    if infected_node2 is not None:
         for neighbor in G.neighbors(infected_node2):
             if states[neighbor] == 'S':
                 infection_rates1[neighbor] = beta2 * sum(1 for n in G.neighbors(neighbor) if states[n] in ['I2', 'I12'])
