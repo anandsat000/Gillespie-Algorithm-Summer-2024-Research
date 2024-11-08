@@ -159,8 +159,8 @@ while t < Tmax and ('I1' in states.values() or 'I2' in states.values()):
 
 # Plot the number of infected nodes over time
 plt.figure(figsize=(12, 6))
-plt.plot(event_times, num_infected1, label='Infected with Virus 1')
-plt.plot(event_times, num_infected2, label='Infected with Virus 2')
+plt.plot(event_times, num_infected1, 'orange', label='Infected with Virus 1')
+plt.plot(event_times, num_infected2, 'green', label='Infected with Virus 2')
 plt.xlabel('Time')
 plt.ylabel('Number of Infected Nodes')
 plt.title('Networked SIS Process Simulation for Two Viruses')
